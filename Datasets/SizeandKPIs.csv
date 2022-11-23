@@ -1,0 +1,16 @@
+Metrices,Size,KPIs
+Core_MANO_Wrapper_Time,12.5,3
+Create_AIML_alerts,5.31,2
+Create_Monitoring_Jobs,3.36,1
+Create_Threshold_Jobs,0.514,1
+Hierarchical_SOE_Dispatching ,1.13,2
+Operationg_ID_for_Instantiation_OP,1.14,2
+PA_Calculation,1.17,2
+Retriveving_Deccriptor_from_Catalogue_DB,0.991,2
+ROE_extract_VL,0.268,2
+ROE_Parsing_NSD,0.393,2
+ROE_Retrieve_RL_Resourses,38.7,3
+ROE_Time,41.6,2
+ROE_Updating,0.365,2
+SOE_Time,11.3,2
+Total_Instantiation_Time ,74.1,5
