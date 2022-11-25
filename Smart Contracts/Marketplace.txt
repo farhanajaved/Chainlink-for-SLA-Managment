@@ -1,0 +1,253 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
+pragma experimental ABIEncoderV2;
+
+contract Marketplace {
+    
+    //Customer's spefications
+    struct Customer {
+        uint256 id;
+        address CustomerAdd;
+        string name;
+        
+    }
+    
+    uint256 internal customerCounter;
+    
+    
+    Customer[] public CustomerArray;
+    mapping (address => bool) public CustomerProfileCheck;
+    mapping (address => uint256) public CustomerIndexMapping;
+
+
+    //Provider's specifications
+        struct Provider {
+        uint256 id;
+        address ProviderAdd;
+        string name;
+        
+    }
+    
+    
+    uint256 internal providerCounter;
+    Provider[] public ProviderArray;
+        mapping (address => bool) public ProviderProfileCheck;
+        mapping (address => uint256) public ProviderIndexMapping;
+        
+        
+        
+        
+    //Service's specifications
+    struct Service {
+        uint256 id;
+        uint256 NetWorkConnection;
+        string location;
+        uint256 ThroughPut;
+        uint256 ResponseTime;
+        }
+    
+    uint256 internal ServiceCounter;
+    Service[] public ServiceArray;
+
+    
+    constructor(){}
+
+
+    //function to set Customer profile for subsquent usage. 
+    
+    function setCustomer(string memory _name) public {
+        require(CustomerProfileCheck[msg.sender]==false,"Customer profile of this address already exist");
+        Customer memory tx1 = Customer(customerCounter, msg.sender, _name);
+        CustomerArray.push(tx1);
+        CustomerProfileCheck[msg.sender] = true;
+        customerCounter +=1;
+    }
+    
+    //function to retrieve individual customer profile by index in number
+    
+    function retrieveCustomerByIndex(uint256 _index) public view returns(Customer memory){
+        return CustomerArray[_index];
+    }
+    
+    //function to retrieve all the customers array without any parameters
+    
+    function retrieveCustomerArray() public view returns(Customer[] memory){
+        return CustomerArray;
+    }
+    
+    
+    
+    
+    //function to set Provider profile for subsquent usage. 
+    
+    function setProvider(string memory _name) public {
+        require(ProviderProfileCheck[msg.sender]==false,"Provider profile of this address already exist");
+        Provider memory tx1 = Provider(providerCounter, msg.sender, _name);
+        ProviderArray.push(tx1);
+        ProviderProfileCheck[msg.sender]=true;
+        providerCounter +=1;
+    }
+    
+    //function to retrieve individual Provider profile by index in number
+    
+    function retrieveProviderByIndex(uint256 _index) public view returns(Provider memory){
+        return ProviderArray[_index];
+    }
+    
+    //function to retrieve all the provider array without any parameters
+    
+    function retrieveProviderArray() public view returns(Provider[] memory){
+        return ProviderArray;
+    }
+    
+    
+    
+    
+    
+        //function to set Service profile for subsquent usage. 
+    
+    function setService(uint256 _networkConnection, string memory _Location, uint256 _ThroughPut, uint256 _ResponseTime) public {
+
+        Service memory tx1 = Service(ServiceCounter, _networkConnection, _Location, _ThroughPut, _ResponseTime);
+        ServiceArray.push(tx1);
+
+        ServiceCounter +=1;
+    }
+    
+
+    //function to retrieve individual Service profile by index in number
+    
+    function retrieveServiceByIndex(uint256 _index) public view returns(Service memory){
+        return ServiceArray[_index];
+    }
+    
+    //function to retrieve all the provider array without any parameters
+    
+    function retrieveServiceArray() public view returns(Service[] memory){
+        return ServiceArray;
+    }
+    
+    
+    struct Bid{
+        uint256 id; 
+        Service serviceProfile;
+        Customer CustomerProfile;
+        uint256 amount; 
+    }
+    
+    Bid[] public BidArray;
+    address[] public ContractArray;
+    mapping(address=>uint256) public ContractArrayMapping;
+    uint256 contractCounter;
+    uint256 BidCounter;
+    
+    // function by which Customer ask bid; 
+    function askBid( uint256 amount, uint256 _serviceIndex ) public payable {
+        require(msg.value > amount,"value must be higher than amount");
+        Customer memory customer = CustomerArray[CustomerIndexMapping[msg.sender]] ;
+        Bid memory tx1 = Bid (BidCounter, ServiceArray[_serviceIndex], customer, amount);
+        BidArray.push(tx1);
+        BidCounter += 1;
+    }
+    
+    function AcceptBid(uint256 bidIndex) public {
+        
+        Bid memory bid = BidArray[bidIndex];
+        address customer = bid.CustomerProfile.CustomerAdd;
+        Muahida m1 =  new Muahida(customer , msg.sender, bid.serviceProfile.NetWorkConnection, bid.serviceProfile.location, bid.serviceProfile.ThroughPut, bid.serviceProfile.ResponseTime, bid.amount, address(this),bid.id);
+        ContractArray.push(address(m1));
+        
+    }
+    
+    
+    function acceptServiceLevel(uint256 _bidIndex, address _contract) public payable {
+        Bid memory bid = BidArray[_bidIndex];
+        Muahida  m1 = Muahida(_contract);
+        address supplier = m1.ProviderAddress();
+        uint256 amount = bid.amount;
+        payable(supplier).transfer(amount);
+        m1.setActive();
+        
+    }
+    
+    
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+contract Muahida{
+    
+        uint256 ContractIndex;
+        address public CustomerAddress;
+        address public ProviderAddress;
+        uint256 public NetWorkConnection;
+        string public location;
+        uint256 public ThroughPut;
+        uint256 public ResponseTime;
+        uint256 public amount;
+        bool public active = true;
+        Marketplace public parentContract;
+        
+    
+    
+    constructor(address _CustomerAddress,
+                address _ProviderAddress,
+                uint256 _networkConnection,
+                string memory _location,
+                uint256 _ThroughPut,
+                uint256 _ResponseTime,
+                uint256 _amount,
+                address _parentContract,
+                uint256 _ContractIndex){
+        ContractIndex = _ContractIndex;
+        CustomerAddress = _CustomerAddress;
+        ProviderAddress = _ProviderAddress;
+        NetWorkConnection = _networkConnection;
+        location = _location;
+        ThroughPut = _ThroughPut;
+        ResponseTime = _ResponseTime;
+        amount = _amount;    
+        
+        Marketplace f1 = Marketplace(_parentContract);
+        parentContract = f1;
+        
+    }
+    
+    function accept() public {
+        require(active == true, "Contract has been ended up");
+        require(msg.sender == CustomerAddress, "can only be invoke by customer");
+        parentContract.acceptServiceLevel(ContractIndex,address(this));
+    }
+
+
+    function setActive() public {
+        active = false;
+    }
+
+        
+    
+}
