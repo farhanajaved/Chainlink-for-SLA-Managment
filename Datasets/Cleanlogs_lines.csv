@@ -1,0 +1,5 @@
+Use-case,Logging_O,Clean_logs,No. of lines,Size (MB),Time-IPFS,Txn_Cost-to-Write (MATIC)
+1,UC1,5grso,6831,0.358,7,0.00009819
+1,UC1,Vs,9196,1.2,6,0.00009819
+1,UC2,5grso,6177,0.332,7,0.00009819
+1,UC2,Vs,9724,1.16,6,0.00009819
