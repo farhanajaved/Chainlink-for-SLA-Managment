@@ -1,4 +1,4 @@
-Metrices,Size,No. of lines,KPIs,Time-IPFS,TxnFee(MATIC),TxnTime(s)
+Metrics,Size,No. of lines,KPIs,Time-IPFS,TxnFee(MATIC),TxnTime(s)
 Core_MANO_Wrapper_Time,12.5,323,3,5,0.00028322,15
 Create_AIML_alerts,5.31,62,2,7,0.00009819,10
 Create_Monitoring_Jobs,3.36,79,1,9,0.00009818,12
